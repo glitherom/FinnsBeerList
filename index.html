@@ -5,60 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finn's Beer List</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f0f0f0;
-            color: #333;
-        }
-        .container {
-            width: 80%;
-            margin: auto;
-            overflow: hidden;
-        }
-        header {
-            background: #003366;
-            color: white;
-            padding-top: 30px;
-            min-height: 70px;
-            border-bottom: #ffa500 3px solid;
-        }
-        header #branding h1 {
-            margin: 0;
-            text-align: center;
-        }
-        .beer-item {
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-        }
-        .beer-item img {
-            width: 100px;
-            height: auto;
-            margin-right: 10px;
-        }
-        .beer-info {
-            flex-grow: 1;
-        }
-        @media screen and (max-width: 768px) {
-            .beer-item img {
-                width: 80px;
-            }
-        }
-        @media screen and (max-width: 480px) {
-            .beer-item {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .beer-item img {
-                width: 60px;
-                margin-right: 0;
-                margin-bottom: 10px;
-            }
-        }
+        /* ... existing CSS styles ... */
     </style>
 </head>
 <body>
@@ -91,44 +38,45 @@
         function fetchSheetData(range, callback) {
             fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`)
                 .then(response => response.json())
-                .then(data => callback(data.values));
+                .then(data => {
+                    if (data && data.values) {
+                        callback(data.values);
+                    }
+                })
+                .catch(error => console.error('Error fetching data:', error));
         }
 
         fetchSheetData(beerListRange, function(rows) {
             let beerListHtml = '';
-            rows.forEach((row, index) => {
-                if (index > 0) {
-                    beerListHtml += `<div class="beer-item">`;
-                    beerListHtml += row[12] ? `<img src="${row[12]}" alt="${row[0]}">` : '';
-                    beerListHtml += `<div class="beer-info">`;
-                    beerListHtml += `<h3>${row[0]} - ${row[1]}</h3>`;
-                    beerListHtml += `<p>Location: ${row[2]}</p>`;
-                    // ... include other details ...
-                    beerListHtml += `</div></div>`;
-                }
+            rows.forEach(row => {
+                beerListHtml += `<div class="beer-item">`;
+                beerListHtml += row[12] ? `<img src="${row[12]}" alt="${row[0]}">` : '';
+                beerListHtml += `<div class="beer-info">`;
+                beerListHtml += `<h3>${row[0]} - ${row[1]}</h3>`;
+                beerListHtml += `<p>Location: ${row[2]}</p>`;
+                // ... include other details ...
+                beerListHtml += `</div></div>`;
             });
             document.getElementById('beer-list').innerHTML = beerListHtml;
         });
 
         fetchSheetData(onDeckRange, function(rows) {
             let onDeckHtml = '';
-            rows.forEach((row, index) => {
-                if (index > 0) {
-                    onDeckHtml += `<div class="beer-item">`;
-                    onDeckHtml += row[12] ? `<img src="${row[12]}" alt="${row[0]}">` : '';
-                    onDeckHtml += `<div class="beer-info">`;
-                    onDeckHtml += `<h3>${row[0]} - ${row[1]}</h3>`;
-                    onDeckHtml += `<p>Location: ${row[2]}</p>`;
-                    // ... include other details ...
-                    onDeckHtml += `</div></div>`;
-                }
+            rows.forEach(row => {
+                onDeckHtml += `<div class="beer-item">`;
+                onDeckHtml += row[12] ? `<img src="${row[12]}" alt="${row[0]}">` : '';
+                onDeckHtml += `<div class="beer-info">`;
+                onDeckHtml += `<h3>${row[0]} - ${row[1]}</h3>`;
+                onDeckHtml += `<p>Location: ${row[2]}</p>`;
+                // ... include other details ...
+                onDeckHtml += `</div></div>`;
             });
             document.getElementById('on-deck').innerHTML = onDeckHtml;
         });
 
         fetchSheetData(metadataRange, function(rows) {
             const lastUpdated = rows.find(row => row[0] === 'Last Updated');
-            if (lastUpdated) {
+            if (lastUpdated && lastUpdated[1]) {
                 document.getElementById('last-updated').textContent = lastUpdated[1];
             }
         });
