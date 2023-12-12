@@ -5,7 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finn's Beer List</title>
     <style>
-        /* ... existing CSS styles ... */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0; /* Light grey background */
+            color: #333;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+        header {
+            background: #003366; /* Dark blue background */
+            color: #ffffff; /* White text */
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #ffa500 3px solid; /* Orange border */
+        }
+        header #branding h1 {
+            margin: 0;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -18,67 +40,39 @@
     </header>
 
     <div class="container">
-        <p>Last Updated: <span id="last-updated"></span></p>
         <div id="beer-list">
             <!-- Beer List Will Be Loaded Here -->
-        </div>
-        <h2>On Deck</h2>
-        <div id="on-deck">
-            <!-- Upcoming Beers Will Be Loaded Here -->
         </div>
     </div>
 
     <script>
-        const apiKey = 'AIzaSyB9lNNu8RBgALT_Q87R3YuG3YgXbpFLE48';
+        const apiKey = 'YOUR_ACTUAL_API_KEY_HERE'; // Replace with your actual API key
         const sheetId = '1-5wh-Yp7uoU5cxZ_n0PO8pFUl3qhdy7Cz2ubaP6sIYA';
-        const beerListRange = 'BeerList!A:M';
-        const onDeckRange = 'OnDeck!A:M';
-        const metadataRange = 'Metadata!A:B';
+        const range = 'Sheet1!A:L'; // Adjust the range according to your sheet's columns
 
-        function fetchSheetData(range, callback) {
+        document.addEventListener('DOMContentLoaded', function() {
             fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data && data.values) {
-                        callback(data.values);
+            .then(response => response.json())
+            .then(data => {
+                const rows = data.values;
+                let beerListHtml = '';
+                rows.forEach((row, index) => {
+                    if (index > 0) { // Skip header row
+                        beerListHtml += `<h3>${row[0]} - ${row[1]}</h3>`; // Beer, Brewery
+                        beerListHtml += `<p>Location: ${row[2]}</p>`;
+                        beerListHtml += `<p>Style: ${row[3]}</p>`;
+                        beerListHtml += `<p>ABV: ${row[4]}</p>`;
+                        beerListHtml += `<p>IBUs: ${row[5]}</p>`;
+                        beerListHtml += `<p>Pour Size: ${row[6]}</p>`;
+                        beerListHtml += `<p>Price: ${row[7]}</p>`;
+                        beerListHtml += `<p>Hops: ${row[8]}</p>`;
+                        beerListHtml += `<p>Appearance: ${row[9]}</p>`;
+                        beerListHtml += `<p>Aroma: ${row[10]}</p>`;
+                        beerListHtml += `<p>Flavor: ${row[11]}</p>`;
                     }
-                })
-                .catch(error => console.error('Error fetching data:', error));
-        }
-
-        fetchSheetData(beerListRange, function(rows) {
-            let beerListHtml = '';
-            rows.forEach(row => {
-                beerListHtml += `<div class="beer-item">`;
-                beerListHtml += row[12] ? `<img src="${row[12]}" alt="${row[0]}">` : '';
-                beerListHtml += `<div class="beer-info">`;
-                beerListHtml += `<h3>${row[0]} - ${row[1]}</h3>`;
-                beerListHtml += `<p>Location: ${row[2]}</p>`;
-                // ... include other details ...
-                beerListHtml += `</div></div>`;
+                });
+                document.getElementById('beer-list').innerHTML = beerListHtml;
             });
-            document.getElementById('beer-list').innerHTML = beerListHtml;
-        });
-
-        fetchSheetData(onDeckRange, function(rows) {
-            let onDeckHtml = '';
-            rows.forEach(row => {
-                onDeckHtml += `<div class="beer-item">`;
-                onDeckHtml += row[12] ? `<img src="${row[12]}" alt="${row[0]}">` : '';
-                onDeckHtml += `<div class="beer-info">`;
-                onDeckHtml += `<h3>${row[0]} - ${row[1]}</h3>`;
-                onDeckHtml += `<p>Location: ${row[2]}</p>`;
-                // ... include other details ...
-                onDeckHtml += `</div></div>`;
-            });
-            document.getElementById('on-deck').innerHTML = onDeckHtml;
-        });
-
-        fetchSheetData(metadataRange, function(rows) {
-            const lastUpdated = rows.find(row => row[0] === 'Last Updated');
-            if (lastUpdated && lastUpdated[1]) {
-                document.getElementById('last-updated').textContent = lastUpdated[1];
-            }
         });
     </script>
 </body>
