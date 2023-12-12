@@ -123,4 +123,15 @@
                     onDeckHtml += `</div></div>`;
                 }
             });
-            document.getElementById('on-deck
+            document.getElementById('on-deck').innerHTML = onDeckHtml;
+        });
+
+        fetchSheetData(metadataRange, function(rows) {
+            const lastUpdated = rows.find(row => row[0] === 'Last Updated');
+            if (lastUpdated) {
+                document.getElementById('last-updated').textContent = lastUpdated[1];
+            }
+        });
+    </script>
+</body>
+</html>
